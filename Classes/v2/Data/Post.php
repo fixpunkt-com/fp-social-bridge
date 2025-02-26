@@ -1,8 +1,8 @@
 <?php
 
-namespace Fixpunkt\FpSocialBridge\SocialServer\v2\Data;
+namespace Fixpunkt\FpSocialBridge\v2\Data;
 
-use Fixpunkt\FpSocialBridge\SocialServer\SerializableInterface;
+use Fixpunkt\FpSocialBridge\SerializableInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class Post implements SerializableInterface {

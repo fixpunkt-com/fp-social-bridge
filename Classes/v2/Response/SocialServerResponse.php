@@ -1,8 +1,8 @@
 <?php
 
-namespace Fixpunkt\FpSocialBridge\SocialServer\v2\Response;
+namespace Fixpunkt\FpSocialBridge\v2\Response;
 
-use Fixpunkt\FpSocialBridge\SocialServer\SerializableInterface;
+use Fixpunkt\FpSocialBridge\SerializableInterface;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 abstract class SocialServerResponse implements SerializableInterface {

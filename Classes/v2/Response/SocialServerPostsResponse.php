@@ -1,10 +1,10 @@
 <?php
 
-namespace Fixpunkt\FpSocialBridge\SocialServer\v2\Response;
+namespace Fixpunkt\FpSocialBridge\v2\Response;
 
-use Fixpunkt\FpSocialBridge\SocialServer\SerializableInterface;
-use Fixpunkt\FpSocialBridge\SocialServer\v2\Data\Post;
-use Fixpunkt\FpSocialBridge\SocialServer\v2\Data\Posts;
+use Fixpunkt\FpSocialBridge\SerializableInterface;
+use Fixpunkt\FpSocialBridge\v2\Data\Post;
+use Fixpunkt\FpSocialBridge\v2\Data\Posts;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SocialServerPostsResponse extends SocialServerResponse implements SerializableInterface {
