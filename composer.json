@@ -1,0 +1,24 @@
+{
+  "name": "fixpunkt/fp-social-bridge",
+  "type": "typo3-cms-extension",
+  "description": "Fixpunkt Social Bridge",
+  "authors": [
+    {
+      "name": "Yannik Börgener",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "typo3/cms-core": "^12",
+  },
+  "autoload": {
+    "psr-4": {
+      "Fixpunkt\\FpSocialBridge\\": "Classes/"
+    }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "fp_social_bridge"
+    }
+  }
+}
