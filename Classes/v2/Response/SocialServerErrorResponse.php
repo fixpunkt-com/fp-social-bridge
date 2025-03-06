@@ -7,11 +7,14 @@ use Fixpunkt\FpSocialBridge\v2\Data\Post;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SocialServerErrorResponse extends SocialServerResponse implements SerializableInterface {
+    protected readonly int $code;
+
     public function __construct(
         int $version,
-        protected readonly int $code,
+        int $code,
         protected readonly string $message
     ) {
+        $this -> code = "5550".$code;
         parent::__construct($version);
     }
 
