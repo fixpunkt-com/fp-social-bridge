@@ -19,7 +19,7 @@ class SocialServerErrorResponse extends SocialServerResponse implements Serializ
         return GeneralUtility::makeInstance(SocialServerErrorResponse::class,
             $array["version"],
             $array["code"],
-            $array["error"]
+            $array["message"]
         );
     }
     public static function fromJson(string $json) : SocialServerErrorResponse {

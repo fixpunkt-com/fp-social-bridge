@@ -24,11 +24,8 @@ abstract class SocialServerResponse implements SerializableInterface {
         }
 
         // Auf Fehler prüfen
-        if(key_exists("error", $array)) {
-            throw new \Exception(
-                $array["error"]["message"],
-                $array["error"]["code"]
-            );
+        if($array["type"] == SocialServerErrorResponse::class) {
+            return SocialServerErrorResponse::fromArray($array);
         }
 
         // Prüfen ob korrekte Version abgerufen wurde
@@ -37,14 +34,15 @@ abstract class SocialServerResponse implements SerializableInterface {
         }
 
         // check which response we have
-        if(key_exists("post", $array)) {
-            return SocialServerPostResponse::fromArray($array);
-        } else if(key_exists("posts", $array)) {
-            return SocialServerPostsResponse::fromArray($array);
+        switch($array["type"]) {
+            case SocialServerPostResponse::class:
+                return SocialServerPostResponse::fromArray($array);
+            case SocialServerPostsResponse::class:
+                return SocialServerPostsResponse::fromArray($array);
         }
 
-        DebuggerUtility::var_dump($array);
-        die();
+        // throw exception
+        throw new \Exception("The received response is not recognized.", 1741293955);
     }
 
     /**
