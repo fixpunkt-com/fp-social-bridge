@@ -1,0 +1,5 @@
+# Isolated dev toolchain: only the manifest is tracked, everything that
+# composer/TYPO3 generates here (vendor, lock, published public assets, …) is not.
+/*
+!.gitignore
+!composer.json

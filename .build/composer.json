@@ -1,0 +1,28 @@
+{
+  "name": "fixpunkt/fp-social-bridge-cs-tools",
+  "description": "Isolated dev tooling (coding standards + static analysis) for fp_social_bridge — not part of the extension package.",
+  "require-dev": {
+    "typo3/coding-standards": "^0.8",
+    "phpstan/phpstan": "^2.1",
+    "phpstan/extension-installer": "^1.4",
+    "saschaegerer/phpstan-typo3": "^2.1",
+    "typo3/cms-core": "^13.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "Fixpunkt\\FpSocialBridge\\": "../Classes/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "typo3/class-alias-loader": true,
+      "typo3/cms-composer-installers": true,
+      "phpstan/extension-installer": true
+    },
+    "policy": {
+      "advisories": {
+        "block": false
+      }
+    }
+  }
+}

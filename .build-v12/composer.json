@@ -1,0 +1,27 @@
+{
+  "name": "fixpunkt/fp-social-bridge-cs-tools-v12",
+  "description": "Isolated tooling to static-analyse fp_social_bridge against TYPO3 12.4 (lowest supported). Mirror of .build/ but pinned to the v12 line.",
+  "autoload": {
+    "psr-4": {
+      "Fixpunkt\\FpSocialBridge\\": "../Classes/"
+    }
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^1.12 || ^2.0",
+    "phpstan/extension-installer": "^1.4",
+    "saschaegerer/phpstan-typo3": "^1.10 || ^2.0",
+    "typo3/cms-core": "^12.4"
+  },
+  "config": {
+    "allow-plugins": {
+      "typo3/class-alias-loader": true,
+      "typo3/cms-composer-installers": true,
+      "phpstan/extension-installer": true
+    },
+    "policy": {
+      "advisories": {
+        "block": false
+      }
+    }
+  }
+}

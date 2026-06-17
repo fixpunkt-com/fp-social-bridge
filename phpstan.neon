@@ -1,0 +1,12 @@
+# PHPStan configuration for the fp_social_bridge extension.
+# The toolchain (PHPStan + saschaegerer/phpstan-typo3 + TYPO3 core for type
+# resolution) lives isolated in .build/ — see .build/composer.json.
+# phpstan-typo3 is auto-registered via phpstan/extension-installer.
+#
+# Run: ddev exec ".build/vendor/bin/phpstan analyse"
+parameters:
+    level: 5
+    paths:
+        - Classes
+    bootstrapFiles:
+        - .build/vendor/autoload.php
