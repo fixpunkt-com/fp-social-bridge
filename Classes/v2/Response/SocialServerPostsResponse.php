@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Fixpunkt\FpSocialBridge\v2\Response;
 
 use Fixpunkt\FpSocialBridge\SerializableInterface;
@@ -7,7 +9,8 @@ use Fixpunkt\FpSocialBridge\v2\Data\Post;
 use Fixpunkt\FpSocialBridge\v2\Data\Posts;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class SocialServerPostsResponse extends SocialServerResponse implements SerializableInterface {
+class SocialServerPostsResponse extends SocialServerResponse implements SerializableInterface
+{
     public function __construct(
         int $version,
         protected readonly Posts $posts,
@@ -17,30 +20,33 @@ class SocialServerPostsResponse extends SocialServerResponse implements Serializ
         parent::__construct($version);
     }
 
-    public static function fromArray(array $array) : SocialServerResponse {
-        return GeneralUtility::makeInstance(SocialServerPostsResponse::class,
-            $array["version"],
-            Posts::fromArray($array["posts"]),
-            $array["requests"]["previousPage"],
-            $array["requests"]["nextPage"],
+    public static function fromArray(array $array): SocialServerResponse
+    {
+        return GeneralUtility::makeInstance(
+            SocialServerPostsResponse::class,
+            $array['version'],
+            Posts::fromArray($array['posts']),
+            $array['requests']['previousPage'],
+            $array['requests']['nextPage'],
         );
     }
 
-    public function toArray() : array {
+    public function toArray(): array
+    {
         $posts = [];
         /** @var Post $post */
-        foreach($this -> posts as $post) {
+        foreach ($this -> posts as $post) {
             $posts[] = $post -> toArray();
         }
 
         return [
-            "type" => self::class,
-            "version" => $this -> version,
-            "posts" => $posts,
-            "requests" => [
-                "previousPage" => $this -> previous,
-                "nextPage" => $this ->next
-            ]
+            'type' => self::class,
+            'version' => $this -> version,
+            'posts' => $posts,
+            'requests' => [
+                'previousPage' => $this -> previous,
+                'nextPage' => $this ->next,
+            ],
         ];
     }
 

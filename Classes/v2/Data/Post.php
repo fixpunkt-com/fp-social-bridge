@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Fixpunkt\FpSocialBridge\v2\Data;
 
 use Fixpunkt\FpSocialBridge\SerializableInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class Post implements SerializableInterface {
-
+class Post implements SerializableInterface
+{
     public function __construct(
         protected readonly string $id,
         protected readonly string $headline,
@@ -19,49 +21,54 @@ class Post implements SerializableInterface {
         protected readonly array $pictures
     ) {}
 
-    public static function fromArray(array $array) : Post {
-        return GeneralUtility::makeInstance(Post::class,
-            $array["id"],
-            $array["headline"] ?? "",
-            $array["message"],
-            $array["post_url"],
-            self::processDateTimeArray($array["update_time"]),
-            $array["link"],
-            $array["hashtags"] ?? [],
-            $array["mentions"] ?? [],
-            $array["pictures"] ?? []
+    public static function fromArray(array $array): Post
+    {
+        return GeneralUtility::makeInstance(
+            Post::class,
+            $array['id'],
+            $array['headline'] ?? '',
+            $array['message'],
+            $array['post_url'],
+            self::processDateTimeArray($array['update_time']),
+            $array['link'],
+            $array['hashtags'] ?? [],
+            $array['mentions'] ?? [],
+            $array['pictures'] ?? []
         );
     }
 
-    public static function fromJson(string $json) : Post {
+    public static function fromJson(string $json): Post
+    {
         $array = json_decode($json, true);
         return self::fromArray($array);
     }
 
-    protected static function processDateTimeArray(array $data) : \DateTime {
-        $date = substr($data['date'],0,19);
-        $timezone = $data["timezone"];
+    protected static function processDateTimeArray(array $data): \DateTime
+    {
+        $date = substr($data['date'], 0, 19);
+        $timezone = $data['timezone'];
 
-        $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s P", $date.$timezone);
+        $dateTime = \DateTime::createFromFormat('Y-m-d H:i:s P', $date . $timezone);
 
-        if($dateTime === false) {
-            throw new \Exception("Input data is not valid.", 1652115948);
+        if ($dateTime === false) {
+            throw new \Exception('Input data is not valid.', 1652115948);
         }
         return $dateTime;
 
     }
 
-    public function toArray() : array {
+    public function toArray(): array
+    {
         return [
-            "id" => $this -> id,
-            "headline" => $this -> headline,
-            "message" => $this -> message,
-            "post_url" => $this -> post_url,
-            "update_time" => $this -> update_time,
-            "link" => $this -> link,
-            "hashtags" => $this -> hashtags,
-            "mentions" => $this -> mentions,
-            "pictures" => $this -> pictures,
+            'id' => $this -> id,
+            'headline' => $this -> headline,
+            'message' => $this -> message,
+            'post_url' => $this -> post_url,
+            'update_time' => $this -> update_time,
+            'link' => $this -> link,
+            'hashtags' => $this -> hashtags,
+            'mentions' => $this -> mentions,
+            'pictures' => $this -> pictures,
         ];
     }
 
