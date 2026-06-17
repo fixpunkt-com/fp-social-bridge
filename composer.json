@@ -2,6 +2,7 @@
   "name": "fixpunkt/fp-social-bridge",
   "type": "typo3-cms-extension",
   "description": "Fixpunkt Social Bridge",
+  "license": "GPL-2.0-or-later",
   "authors": [
     {
       "name": "Yannik Börgener",
@@ -9,7 +10,9 @@
     }
   ],
   "require": {
-    "typo3/cms-core": "^12 || ^13"
+    "php": "^8.1",
+    "typo3/cms-core": "^12.4 || ^13.4",
+    "ext-json": "*"
   },
   "autoload": {
     "psr-4": {
