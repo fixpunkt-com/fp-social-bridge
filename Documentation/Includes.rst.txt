@@ -1,0 +1,10 @@
+..  More information about how to edit this file can be found at
+..  https://docs.typo3.org/permalink/h2document:start
+
+..  role:: aspect (emphasis)
+..  role:: html(code)
+..  role:: js(code)
+..  role:: php(code)
+..  role:: typoscript(code)
+..  role:: ts(typoscript)
+..  highlight:: php

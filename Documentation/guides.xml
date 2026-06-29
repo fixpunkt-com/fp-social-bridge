@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<guides
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    links-are-relative="true"
+>
+    <extension
+        class="\T3Docs\Typo3DocsTheme\DependencyInjection\Typo3DocsThemeExtension"
+        theme="typo3docs"
+        project-home="https://github.com/fixpunkt-com/fp-social-bridge"
+        project-contact=""
+        project-repository="https://github.com/fixpunkt-com/fp-social-bridge"
+        project-issues="https://github.com/fixpunkt-com/fp-social-bridge/issues"
+        edit-on-github="fixpunkt-com/fp-social-bridge"
+        edit-on-github-branch="main"
+        edit-on-github-directory="Documentation"
+    />
+    <project
+        title="Fixpunkt Social Bridge"
+        version="1.2"
+        release="1.2.1"
+        copyright="since 2024 by fixpunkt für digitales GmbH and the TYPO3 community"
+    />
+    <inventory
+        id="t3coreapi"
+        url="https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/"
+    />
+</guides>
