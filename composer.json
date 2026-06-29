@@ -4,10 +4,16 @@
   "description": "Fixpunkt Social Bridge",
   "license": "GPL-2.0-or-later",
   "authors": [
-    {
-      "name": "Yannik Börgener",
-      "role": "Developer"
-    }
+	{
+	  "name": "fixpunkt für digitales GmbH",
+	  "email": "office@fixpunkt.com",
+	  "homepage": "https://fixpunkt.com",
+	  "role": "Company"
+	},
+	{
+	"name": "Yannik Börgener",
+	"role": "Developer"
+	}
   ],
   "require": {
     "php": "^8.1",
