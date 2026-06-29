@@ -23,5 +23,14 @@
     "typo3/cms": {
       "extension-key": "fp_social_bridge"
     }
+  },
+  "require-dev": {
+    "typo3/tailor": "^1.7"
+  },
+  "config": {
+    "allow-plugins": {
+      "typo3/cms-composer-installers": true,
+      "typo3/class-alias-loader": true
+    }
   }
 }

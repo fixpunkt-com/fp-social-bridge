@@ -2,6 +2,7 @@ vendor
 public/
 !*/public
 composer.lock
+.env
 
 # ---> Eclipse
 *.pydevproject

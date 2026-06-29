@@ -21,7 +21,7 @@ services:
     container_name: ddev-fp-social-bridge-db
     environment:
       BITNAMI_VOLUME_DIR: ""
-      COLUMNS: "80"
+      COLUMNS: "230"
       DDEV_DATABASE: mariadb:10.11
       DDEV_DATABASE_FAMILY: mysql
       DDEV_GID: "1000"
@@ -45,7 +45,7 @@ services:
       DOCKER_IP: 127.0.0.1
       HOST_DOCKER_INTERNAL_IP: 172.17.0.1
       IS_DDEV_PROJECT: "true"
-      LINES: "24"
+      LINES: "18"
       MYSQL_HISTFILE: /mnt/ddev-global-cache/mysqlhistory/fp-social-bridge-db/mysql_history
       PGDATABASE: db
       PGHOST: 127.0.0.1
@@ -128,7 +128,7 @@ services:
       - /pre-start.sh
     container_name: ddev-fp-social-bridge-web
     environment:
-      COLUMNS: "80"
+      COLUMNS: "230"
       COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
       COREPACK_HOME: /mnt/ddev-global-cache/corepack
       DDEV_APPROOT: /var/www/html
@@ -169,7 +169,7 @@ services:
       HTTP_EXPOSE: 80:80,8025:8025
       HTTPS_EXPOSE: 443:80,8026:8025
       IS_DDEV_PROJECT: "true"
-      LINES: "24"
+      LINES: "18"
       MYSQL_HISTFILE: /mnt/ddev-global-cache/mysqlhistory/fp-social-bridge-web/mysql_history
       NODE_EXTRA_CA_CERTS: /mnt/ddev-global-cache/mkcert/rootCA.pem
       PGDATABASE: db
