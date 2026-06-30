@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Fixpunkt Social Bridge',
     'description' => 'Shared data-transfer objects and response types bridging the fixpunkt social server and TYPO3 extensions (used by fp_social).',

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.2" encoding="UTF-8" ?>
 <guides
     xmlns:xi="http://www.w3.org/2001/XInclude"
     links-are-relative="true"
@@ -17,7 +17,7 @@
     <project
         title="Fixpunkt Social Bridge"
         version="1.2"
-        release="1.2.1"
+        release="1.2.2"
         copyright="since 2024 by fixpunkt für digitales GmbH and the TYPO3 community"
     />
     <inventory
