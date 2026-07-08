@@ -1,0 +1,5 @@
+# Isolated v14 analysis toolchain: only the manifests are tracked.
+/*
+!.gitignore
+!composer.json
+!phpstan.neon

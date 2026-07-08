@@ -22,6 +22,6 @@ Requirements
     *   -   Component
         -   Version
     *   -   TYPO3
-        -   **12.4 – 13.4**
+        -   **12.4 – 14.3**
     *   -   PHP
-        -   **8.1 – 8.4**
+        -   **8.4 – 8.5**
