@@ -1,8 +1,8 @@
 name: CI
 
 # Static analysis + coding standards against the lowest (12.4) and highest (14)
-# supported TYPO3 versions. Reuses the isolated toolchains in .build/ (v13),
-# .build-v12/ (v12) and .build-v14/ (v14) — see DEVELOPMENT.md.
+# supported TYPO3 versions. Reuses the isolated toolchains in .build/ (v14),
+# .build-v12/ (v12) and .build-v13/ (v13) — see DEVELOPMENT.md.
 
 on:
   push:
@@ -17,8 +17,8 @@ jobs:
       matrix:
         include:
           - { typo3: '12.4', php: '8.4', build: '.build-v12', config: '.build-v12/phpstan.neon' }
-          - { typo3: '13.4', php: '8.4', build: '.build', config: 'phpstan.neon' }
-          - { typo3: '14.3', php: '8.4', build: '.build-v14', config: '.build-v14/phpstan.neon' }
+          - { typo3: '13.4', php: '8.4', build: '.build-v13', config: '.build-v13/phpstan.neon' }
+          - { typo3: '14.3', php: '8.4', build: '.build', config: 'phpstan.neon' }
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
