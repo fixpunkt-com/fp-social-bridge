@@ -3,6 +3,7 @@ public/
 !*/public
 composer.lock
 .env
+Documentation-GENERATED-temp
 
 # ---> Eclipse
 *.pydevproject
