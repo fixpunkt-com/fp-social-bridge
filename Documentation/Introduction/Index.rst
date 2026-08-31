@@ -35,6 +35,14 @@ Included classes
             mentions, pictures)
     *   -   ``v2\Data\Posts``
         -   Iterable, countable collection of ``Post`` objects
+    *   -   ``v2\Data\Channel``
+        -   A selectable page or channel of a connected account (id, name)
+    *   -   ``v2\Data\Account``
+        -   A connected account incl. its channels (uid, network, display name,
+            e-mail, expiry)
+    *   -   ``v2\Data\Accounts``
+        -   Iterable, countable collection of ``Account`` objects, grouped by
+            network
     *   -   ``v2\Response\SocialServerResponse``
         -   Abstract base incl. version check and the ``fromJson()`` factory
     *   -   ``v2\Response\SocialServerPostResponse``
@@ -42,5 +50,7 @@ Included classes
     *   -   ``v2\Response\SocialServerPostsResponse``
         -   Response containing multiple posts + pagination
             (``previousPage``/``nextPage``)
+    *   -   ``v2\Response\SocialServerAccountsResponse``
+        -   Response containing all connected accounts, grouped by network
     *   -   ``v2\Response\SocialServerErrorResponse``
         -   Error response (code with prefix ``5550``, message)

@@ -88,6 +88,90 @@ v2\\Data\\Posts
 Iterable, countable collection of ``Post`` objects. Implements ``Iterator`` and
 ``Countable``, so it can be used directly with ``foreach`` and ``count()``.
 
+..  _reference-channel:
+
+v2\\Data\\Channel
+----------------
+
+A selectable page or channel of a connected account. This is exactly what the
+client side writes into the ``channel`` and ``label`` fields of an account
+record.
+
+..  list-table::
+    :header-rows: 1
+    :widths: 40 60
+
+    *   -   Method
+        -   Return value
+    *   -   ``getId()``
+        -   ``string`` – id of the page/channel in the network
+    *   -   ``getName()``
+        -   ``string`` – display name of the page/channel
+
+..  _reference-account:
+
+v2\\Data\\Account
+----------------
+
+A single connected account of the social server.
+
+..  list-table::
+    :header-rows: 1
+    :widths: 40 60
+
+    *   -   Method
+        -   Return value
+    *   -   ``getUid()``
+        -   ``int`` – uid of the access key record on the social server
+    *   -   ``getNetwork()``
+        -   ``string`` – connector class name, e.g.
+            ``Fixpunkt\FpSocialServer\Networks\Facebook\Connector``
+    *   -   ``getNetworkKey()``
+        -   ``string`` – short form of the network (``facebook``,
+            ``instagram``, ``instagramlogin``, ``linkedin``)
+    *   -   ``getNetworkName()``
+        -   ``string`` – human readable network name, e.g.
+            ``Instagram (Direktanmeldung)``
+    *   -   ``getDisplayName()``
+        -   ``string`` – name of the account as shown to the user
+    *   -   ``getUsername()``
+        -   ``string`` – identifier of the account within the network
+    *   -   ``getEmail()``
+        -   ``string`` – e-mail address, may be empty
+    *   -   ``getExpires()``
+        -   ``\DateTime|null`` – expiry of the access key, ``null`` for
+            networks whose keys do not expire
+    *   -   ``getExpired()``
+        -   ``bool`` – whether the access key has already expired
+    *   -   ``getChannels()``
+        -   ``Channel[]`` – the pages/channels reachable with this account
+
+..  _reference-accounts:
+
+v2\\Data\\Accounts
+-----------------
+
+Iterable, countable collection of ``Account`` objects, **grouped by network**.
+Unlike :ref:`Posts <reference-posts>` it is not a flat list: iterating yields
+the network class name as key and an ``Account[]`` as value.
+
+..  list-table::
+    :header-rows: 1
+    :widths: 40 60
+
+    *   -   Method
+        -   Description
+    *   -   ``getIterator()``
+        -   Iterates ``network => Account[]`` (``IteratorAggregate``)
+    *   -   ``count()``
+        -   Total number of accounts across all networks
+    *   -   ``getNetworks()``
+        -   ``string[]`` – the networks that have accounts
+    *   -   ``getByNetwork(string $network)``
+        -   ``Account[]`` – the accounts of one network, empty if unknown
+    *   -   ``getAll()``
+        -   ``Account[]`` – all accounts as a flat list
+
 Responses
 =========
 
@@ -143,6 +227,16 @@ Response containing multiple posts including pagination.
         -   Cursor for the next page (``nextPage``).
     *   -   ``getPrevious(): string``
         -   Cursor for the previous page (``previousPage``).
+
+..  _reference-accounts-response:
+
+v2\\Response\\SocialServerAccountsResponse
+-----------------------------------------
+
+Response containing all accounts the authenticated user has connected on the
+social server, grouped by network.
+
+*   ``getAccounts(): Accounts`` – the contained collection.
 
 ..  _reference-error-response:
 

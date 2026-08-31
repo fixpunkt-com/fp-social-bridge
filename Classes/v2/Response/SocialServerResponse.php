@@ -42,6 +42,8 @@ abstract class SocialServerResponse implements SerializableInterface
                 return SocialServerPostResponse::fromArray($array);
             case SocialServerPostsResponse::class:
                 return SocialServerPostsResponse::fromArray($array);
+            case SocialServerAccountsResponse::class:
+                return SocialServerAccountsResponse::fromArray($array);
         }
 
         // throw exception

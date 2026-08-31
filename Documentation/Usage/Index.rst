@@ -18,13 +18,16 @@ format.
 Request flow
 ============
 
-#.  The client side (e.g. ``fp_social``) requests posts from the social server.
+#.  The client side (e.g. ``fp_social``) requests posts or the available
+    accounts from the social server.
 #.  The social server gathers the data and **creates a response object**. Which
-    of the three types is created depends on the result:
+    of the four types is created depends on the result:
 
     *   a single post → :ref:`SocialServerPostResponse <reference-post-response>`
     *   multiple posts (with pagination) → :ref:`SocialServerPostsResponse
         <reference-posts-response>`
+    *   the connected accounts → :ref:`SocialServerAccountsResponse
+        <reference-accounts-response>`
     *   an error → :ref:`SocialServerErrorResponse <reference-error-response>`
 
 #.  The server serializes the object via ``toArray()`` and ``json_encode()`` and
@@ -325,6 +328,134 @@ Client side – evaluate:
         );
     }
 
+..  _usage-accounts-response:
+
+Example 4: The available accounts (SocialServerAccountsResponse)
+---------------------------------------------------------------
+
+The endpoint ``POST /api/accounts`` returns every account the authenticated user
+has connected on the social server, grouped by network. The client side uses it
+to prefill the account, channel and label fields of an account record instead of
+having editors type page ids by hand.
+
+Only networks whose access is established on the server appear here – Facebook,
+Instagram, Instagram (direct login) and LinkedIn. Wordpress, Youtube and Bluesky
+are configured entirely on the client side and are therefore absent.
+
+Server side – create and output as JSON:
+
+..  code-block:: php
+
+    use Fixpunkt\FpSocialBridge\v2\Data\Account;
+    use Fixpunkt\FpSocialBridge\v2\Data\Accounts;
+    use Fixpunkt\FpSocialBridge\v2\Data\Channel;
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerAccountsResponse;
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerResponse;
+
+    $accounts = new Accounts([
+        'Fixpunkt\FpSocialServer\Networks\Facebook\Connector' => [
+            new Account(
+                uid: 12,
+                network: 'Fixpunkt\FpSocialServer\Networks\Facebook\Connector',
+                networkKey: 'facebook',
+                networkName: 'Facebook',
+                displayName: 'Example Organization',
+                username: '100000000000001',
+                email: 'office@example.com',
+                expires: null,
+                expired: false,
+                channels: [
+                    new Channel('200000000000001', 'Example Page'),
+                    new Channel('200000000000002', 'Example Campaign'),
+                ],
+            ),
+        ],
+    ]);
+
+    $response = new SocialServerAccountsResponse(SocialServerResponse::version, $accounts);
+
+    echo json_encode($response->toArray());
+
+The resulting JSON:
+
+..  code-block:: json
+
+    {
+        "type": "Fixpunkt\\FpSocialBridge\\v2\\Response\\SocialServerAccountsResponse",
+        "version": 2,
+        "accounts": {
+            "Fixpunkt\\FpSocialServer\\Networks\\Facebook\\Connector": [
+                {
+                    "uid": 12,
+                    "network": "Fixpunkt\\FpSocialServer\\Networks\\Facebook\\Connector",
+                    "networkKey": "facebook",
+                    "networkName": "Facebook",
+                    "displayName": "Example Organization",
+                    "username": "100000000000001",
+                    "email": "office@example.com",
+                    "expires": null,
+                    "expired": false,
+                    "channels": [
+                        {"id": "200000000000001", "name": "Example Page"},
+                        {"id": "200000000000002", "name": "Example Campaign"}
+                    ]
+                }
+            ],
+            "Fixpunkt\\FpSocialServer\\Networks\\LinkedIn\\Connector": [
+                {
+                    "uid": 15,
+                    "network": "Fixpunkt\\FpSocialServer\\Networks\\LinkedIn\\Connector",
+                    "networkKey": "linkedin",
+                    "networkName": "LinkedIn",
+                    "displayName": "Alex Example",
+                    "username": "AbC123dEf",
+                    "email": "alex@example.com",
+                    "expires": {
+                        "date": "2026-12-24 09:15:00.000000",
+                        "timezone_type": 3,
+                        "timezone": "Europe/Berlin"
+                    },
+                    "expired": false,
+                    "channels": [
+                        {"id": "urn:li:organization:300001", "name": "Example GmbH"}
+                    ]
+                }
+            ]
+        }
+    }
+
+Client side – evaluate:
+
+..  code-block:: php
+
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerAccountsResponse;
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerResponse;
+
+    $response = SocialServerResponse::fromJson($json);
+
+    if ($response instanceof SocialServerAccountsResponse) {
+        foreach ($response->getAccounts() as $network => $accounts) {
+            foreach ($accounts as $account) {
+                foreach ($account->getChannels() as $channel) {
+                    // channel field ← getId(), label field ← getName()
+                    echo $account->getDisplayName() . ': ' . $channel->getName();
+                }
+            }
+        }
+    }
+
+..  note::
+
+    ``expires`` is ``null`` for networks whose access keys do not expire
+    (Facebook, Instagram). For LinkedIn and Instagram (direct login) it is a
+    serialized ``\DateTime`` in the same format as ``update_time`` on a post.
+
+..  note::
+
+    Instagram reuses the Facebook access key. The same account therefore shows up
+    under both networks with the same ``uid`` but different ``channels`` –
+    Facebook pages in one case, Instagram business accounts in the other.
+
 Handling all types together
 ===========================
 
@@ -337,6 +468,7 @@ them apart:
     use Fixpunkt\FpSocialBridge\v2\Response\SocialServerResponse;
     use Fixpunkt\FpSocialBridge\v2\Response\SocialServerPostsResponse;
     use Fixpunkt\FpSocialBridge\v2\Response\SocialServerPostResponse;
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerAccountsResponse;
     use Fixpunkt\FpSocialBridge\v2\Response\SocialServerErrorResponse;
 
     $response = SocialServerResponse::fromJson($json);
@@ -357,6 +489,12 @@ them apart:
 
     if ($response instanceof SocialServerPostResponse) {
         $post = $response->getPost();
+    }
+
+    if ($response instanceof SocialServerAccountsResponse) {
+        foreach ($response->getAccounts() as $network => $accounts) {
+            // ...
+        }
     }
 
 ..  note::
