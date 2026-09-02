@@ -54,3 +54,11 @@ Included classes
         -   Response containing all connected accounts, grouped by network
     *   -   ``v2\Response\SocialServerErrorResponse``
         -   Error response (code with prefix ``5550``, message)
+    *   -   ``v2\Response\SocialServerRateLimitResponse``
+        -   Answer to a throttled request: which limit was hit and from when the
+            service can be used again
+    *   -   ``v2\Response\SocialServerVersionMismatchResponse``
+        -   Answer whose protocol version does not fit the expected one
+    *   -   ``v2\Response\SocialServerUnrecognizedResponse``
+        -   Answer whose type is unknown, incl. the received type and the raw
+            data

@@ -21,7 +21,7 @@ Request flow
 #.  The client side (e.g. ``fp_social``) requests posts or the available
     accounts from the social server.
 #.  The social server gathers the data and **creates a response object**. Which
-    of the four types is created depends on the result:
+    of the five types is created depends on the result:
 
     *   a single post → :ref:`SocialServerPostResponse <reference-post-response>`
     *   multiple posts (with pagination) → :ref:`SocialServerPostsResponse
@@ -29,12 +29,20 @@ Request flow
     *   the connected accounts → :ref:`SocialServerAccountsResponse
         <reference-accounts-response>`
     *   an error → :ref:`SocialServerErrorResponse <reference-error-response>`
+    *   a reached request limit → :ref:`SocialServerRateLimitResponse
+        <reference-rate-limit-response>`
 
 #.  The server serializes the object via ``toArray()`` and ``json_encode()`` and
     sends the JSON to the client.
 #.  The client passes the JSON to the factory :ref:`SocialServerResponse\:\:fromJson()
     <reference-social-server-response>` and receives the matching, typed object
-    back.
+    back. If the answer does not fit, the factory builds the fitting response
+    itself:
+
+    *   a mismatching protocol version → :ref:`SocialServerVersionMismatchResponse
+        <reference-version-mismatch-response>`
+    *   an unknown response type → :ref:`SocialServerUnrecognizedResponse
+        <reference-unrecognized-response>`
 
 Every response carries the fully qualified class name in the ``type`` field and
 the protocol version (currently ``2``) in the ``version`` field. Based on these
@@ -456,6 +464,153 @@ Client side – evaluate:
     under both networks with the same ``uid`` but different ``channels`` –
     Facebook pages in one case, Instagram business accounts in the other.
 
+..  _usage-rate-limit-response:
+
+Example 5: A reached request limit (SocialServerRateLimitResponse)
+-----------------------------------------------------------------
+
+The social server limits how often the API may be called: requests to the same
+social media profile and the overall number of requests are each capped per API
+user. Once a cap is reached the server answers with HTTP ``429``, a
+``Retry-After`` header and a
+:ref:`SocialServerRateLimitResponse <reference-rate-limit-response>`.
+
+Server side – create and output as JSON:
+
+..  code-block:: php
+
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerRateLimitResponse;
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerResponse;
+
+    $response = new SocialServerRateLimitResponse(
+        SocialServerResponse::version,
+        message: 'Das Anfragelimit für dieses Social-Media-Profil ist erreicht '
+            . '(max. 10 Anfragen pro 1 minute). Weitere Anfragen sind ab '
+            . '02.09.2026 14:23:45 möglich, also in 37 Sekunden.',
+        retryAfter: 1788351825,
+        retryAfterSeconds: 37,
+        limit: 10,
+        interval: '1 minute',
+        scope: SocialServerRateLimitResponse::scopeProfile,
+    );
+
+    echo json_encode($response->toArray());
+
+The resulting JSON:
+
+..  code-block:: json
+
+    {
+        "type": "Fixpunkt\\FpSocialBridge\\v2\\Response\\SocialServerRateLimitResponse",
+        "version": 2,
+        "code": 55501788307200,
+        "message": "Das Anfragelimit für dieses Social-Media-Profil ist erreicht (max. 10 Anfragen pro 1 minute). Weitere Anfragen sind ab 02.09.2026 14:23:45 möglich, also in 37 Sekunden.",
+        "retryAfter": 1788351825,
+        "retryAfterSeconds": 37,
+        "limit": 10,
+        "interval": "1 minute",
+        "scope": "profile"
+    }
+
+Client side – wait instead of giving up:
+
+..  code-block:: php
+
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerRateLimitResponse;
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerResponse;
+
+    $response = SocialServerResponse::fromJson($json);
+
+    if ($response instanceof SocialServerRateLimitResponse) {
+        // Short blocks can be waited out, longer ones belong in the next run.
+        if ($response->getRetryAfterSeconds() <= 10) {
+            sleep($response->getRetryAfterSeconds() + 1);
+            // ... retry the request
+        }
+
+        // Otherwise remember the point in time and try again later.
+        $retryAt = $response->getRetryAfter();
+    }
+
+..  warning::
+
+    ``SocialServerRateLimitResponse`` **extends**
+    :ref:`SocialServerErrorResponse <reference-error-response>`. An
+    ``instanceof SocialServerErrorResponse`` check therefore matches it as well,
+    which is intentional: clients that do not know the type yet still see a
+    readable error. If you want to handle a throttled request differently, check
+    for ``SocialServerRateLimitResponse`` **first**.
+
+..  _usage-unusable-response:
+
+Example 6: An answer that cannot be used (version and unknown type)
+-------------------------------------------------------------------
+
+Two cases are not down to the content of the answer but to the answer itself not
+fitting: its protocol version differs from the expected one, or its type is
+unknown. For both, ``fromJson()`` returns a response object instead of throwing
+-- so a single error branch on the client side is enough.
+
+..  code-block:: php
+
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerResponse;
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerUnrecognizedResponse;
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerVersionMismatchResponse;
+
+    // Answer of a server that already speaks version 3
+    $response = SocialServerResponse::fromJson($json);
+
+    if ($response instanceof SocialServerVersionMismatchResponse) {
+        // "Version of answer (3) does not fit request version (2)."
+        $logger->warning($response->getMessage(), [
+            'expected' => $response->getExpectedVersion(),
+            'received' => $response->getReceivedVersion(),
+        ]);
+    }
+
+    if ($response instanceof SocialServerUnrecognizedResponse) {
+        // "The received response is not recognized: \"...\SocialServerStoryResponse\"."
+        $logger->warning($response->getMessage(), [
+            'type' => $response->getReceivedType(),
+            'payload' => $response->getPayload(),
+        ]);
+    }
+
+The server can send both types itself as well, e.g. if it recognizes the version
+of a request as unsupported:
+
+..  code-block:: php
+
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerResponse;
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerVersionMismatchResponse;
+
+    $response = new SocialServerVersionMismatchResponse(
+        version: 3,
+        message: 'Version of answer (3) does not fit request version (2).',
+        expectedVersion: SocialServerResponse::version,
+    );
+
+    echo json_encode($response->toArray());
+
+The resulting JSON:
+
+..  code-block:: json
+
+    {
+        "type": "Fixpunkt\\FpSocialBridge\\v2\\Response\\SocialServerVersionMismatchResponse",
+        "version": 3,
+        "code": 55501652117309,
+        "message": "Version of answer (3) does not fit request version (2).",
+        "expectedVersion": 2
+    }
+
+..  note::
+
+    Both types are checked **before** the version check, just like
+    :ref:`SocialServerRateLimitResponse <reference-rate-limit-response>`: an
+    answer that reports a version problem has to be understood even when the
+    versions are exactly what is diverging.
+
 Handling all types together
 ===========================
 
@@ -470,8 +625,23 @@ them apart:
     use Fixpunkt\FpSocialBridge\v2\Response\SocialServerPostResponse;
     use Fixpunkt\FpSocialBridge\v2\Response\SocialServerAccountsResponse;
     use Fixpunkt\FpSocialBridge\v2\Response\SocialServerErrorResponse;
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerRateLimitResponse;
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerUnrecognizedResponse;
+    use Fixpunkt\FpSocialBridge\v2\Response\SocialServerVersionMismatchResponse;
 
     $response = SocialServerResponse::fromJson($json);
+
+    // Before the error check: these three are subclasses of it.
+    if ($response instanceof SocialServerRateLimitResponse) {
+        // ... wait or postpone, see above
+    }
+
+    if (
+        $response instanceof SocialServerVersionMismatchResponse
+        || $response instanceof SocialServerUnrecognizedResponse
+    ) {
+        // ... log the answer, see above
+    }
 
     if ($response instanceof SocialServerErrorResponse) {
         throw new \RuntimeException(
@@ -499,6 +669,7 @@ them apart:
 
 ..  note::
 
-    ``fromJson()`` checks the protocol version and throws an ``\Exception`` if
-    the data is corrupted or the version does not match. See
-    :ref:`SocialServerResponse <reference-social-server-response>`.
+    ``fromJson()`` only throws an ``\Exception`` if the data is corrupted (code
+    ``1684785549``) -- a mismatching version and an unknown type each come back
+    as a response object. See :ref:`SocialServerResponse
+    <reference-social-server-response>`.

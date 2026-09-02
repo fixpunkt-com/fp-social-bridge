@@ -26,18 +26,36 @@ abstract class SocialServerResponse implements SerializableInterface
             }
         }
 
+        $type = $array['type'] ?? '';
+
+        // Auf Drosselung prüfen. Bewusst vor der Versionsprüfung: ein erreichtes Anfragelimit
+        // soll auch dann verstanden werden, wenn die Protokollversionen auseinanderlaufen.
+        if ($type == SocialServerRateLimitResponse::class) {
+            return SocialServerRateLimitResponse::fromArray($array);
+        }
+
+        // Meldungen zur Version und zu unbekannten Typen ebenfalls vor der Versionsprüfung:
+        // sie beschreiben genau den Fall, in dem die Versionen nicht zusammenpassen.
+        if ($type == SocialServerVersionMismatchResponse::class) {
+            return SocialServerVersionMismatchResponse::fromArray($array);
+        }
+
+        if ($type == SocialServerUnrecognizedResponse::class) {
+            return SocialServerUnrecognizedResponse::fromArray($array);
+        }
+
         // Auf Fehler prüfen
-        if ($array['type'] == SocialServerErrorResponse::class) {
+        if ($type == SocialServerErrorResponse::class) {
             return SocialServerErrorResponse::fromArray($array);
         }
 
         // Prüfen ob korrekte Version abgerufen wurde
-        if ($array['version'] != self::version) {
-            throw new \Exception('Version of answer does not fit request version.', 1652117309);
+        if (($array['version'] ?? null) != self::version) {
+            return SocialServerVersionMismatchResponse::fromArray($array);
         }
 
         // check which response we have
-        switch ($array['type']) {
+        switch ($type) {
             case SocialServerPostResponse::class:
                 return SocialServerPostResponse::fromArray($array);
             case SocialServerPostsResponse::class:
@@ -46,8 +64,15 @@ abstract class SocialServerResponse implements SerializableInterface
                 return SocialServerAccountsResponse::fromArray($array);
         }
 
-        // throw exception
-        throw new \Exception('The received response is not recognized.', 1741293955);
+        // Auffangnetz fuer Typen, die diese Version noch nicht kennt: traegt die Antwort Code und
+        // Meldung, wird sie als Fehler gelesen. So bricht eine neuere Server-Version bei einem
+        // aelteren Client nicht hart ab.
+        if (isset($array['code'], $array['message'])) {
+            return SocialServerErrorResponse::fromArray($array);
+        }
+
+        // Alles andere bleibt unverstanden, wird aber als lesbare Fehlerantwort weitergegeben.
+        return SocialServerUnrecognizedResponse::fromArray($array);
     }
 
     /**

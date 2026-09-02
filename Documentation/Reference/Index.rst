@@ -182,7 +182,7 @@ JSON response into the matching object.
 ..  _reference-social-server-response:
 
 v2\\Response\\SocialServerResponse
----------------------------------
+----------------------------------
 
 Abstract base class of all server responses.
 
@@ -194,15 +194,19 @@ Abstract base class of all server responses.
         -   Description
     *   -   ``fromJson(string $json): static``
         -   Factory: checks the protocol version and returns the matching
-            response object. Throws an ``\Exception`` on corrupted data or a
-            mismatching version.
+            response object. A mismatching version yields a
+            :ref:`SocialServerVersionMismatchResponse
+            <reference-version-mismatch-response>`, an unknown type a
+            :ref:`SocialServerUnrecognizedResponse
+            <reference-unrecognized-response>`. Throws an ``\Exception`` only on
+            corrupted data (code ``1684785549``).
     *   -   ``getVersion(): int``
         -   Protocol version of the response.
 
 ..  _reference-post-response:
 
 v2\\Response\\SocialServerPostResponse
--------------------------------------
+--------------------------------------
 
 Response containing a single post.
 
@@ -211,7 +215,7 @@ Response containing a single post.
 ..  _reference-posts-response:
 
 v2\\Response\\SocialServerPostsResponse
---------------------------------------
+---------------------------------------
 
 Response containing multiple posts including pagination.
 
@@ -231,7 +235,7 @@ Response containing multiple posts including pagination.
 ..  _reference-accounts-response:
 
 v2\\Response\\SocialServerAccountsResponse
------------------------------------------
+------------------------------------------
 
 Response containing all accounts the authenticated user has connected on the
 social server, grouped by network.
@@ -241,7 +245,7 @@ social server, grouped by network.
 ..  _reference-error-response:
 
 v2\\Response\\SocialServerErrorResponse
---------------------------------------
+---------------------------------------
 
 Error response of the social server.
 
@@ -255,3 +259,78 @@ Error response of the social server.
         -   Composite error code (prefix ``5550``).
     *   -   ``getMessage(): string``
         -   Error message.
+
+..  _reference-rate-limit-response:
+
+v2\\Response\\SocialServerRateLimitResponse
+-------------------------------------------
+
+Response of the social server when a request limit has been reached. Extends
+:ref:`SocialServerErrorResponse <reference-error-response>`, so ``getCode()`` and
+``getMessage()`` are available as well – ``getCode()`` always returns
+``55501788307200``, and ``getMessage()`` already spells out the point in time from
+which the service can be used again.
+
+..  list-table::
+    :header-rows: 1
+    :widths: 40 60
+
+    *   -   Method
+        -   Description
+    *   -   ``getRetryAfter(): \DateTimeImmutable``
+        -   Point in time from which requests are allowed again, in the local
+            time zone.
+    *   -   ``getRetryAfterTimestamp(): int``
+        -   The same point in time as a unix timestamp.
+    *   -   ``getRetryAfterSeconds(): int``
+        -   Seconds until then. Suitable for a ``Retry-After`` header or a wait
+            before retrying.
+    *   -   ``getLimit(): int``
+        -   Number of requests allowed within the interval.
+    *   -   ``getInterval(): string``
+        -   The interval of the limit, e.g. ``1 minute``.
+    *   -   ``getScope(): string``
+        -   Which limit was hit: ``profile`` for requests to the same social
+            media profile, ``general`` for the overall limit.
+
+..  _reference-version-mismatch-response:
+
+v2\\Response\\SocialServerVersionMismatchResponse
+-------------------------------------------------
+
+Response whose protocol version does not fit the expected one. Extends
+:ref:`SocialServerErrorResponse <reference-error-response>`; ``getCode()`` always
+returns ``55501652117309`` and ``getMessage()`` names both versions.
+
+..  list-table::
+    :header-rows: 1
+    :widths: 40 60
+
+    *   -   Method
+        -   Description
+    *   -   ``getExpectedVersion(): int``
+        -   Protocol version that was expected (currently ``2``).
+    *   -   ``getReceivedVersion(): int``
+        -   Protocol version the answer was delivered with. Identical to
+            ``getVersion()``.
+
+..  _reference-unrecognized-response:
+
+v2\\Response\\SocialServerUnrecognizedResponse
+----------------------------------------------
+
+Response whose type is unknown and that carries neither ``code`` nor ``message``.
+Extends :ref:`SocialServerErrorResponse <reference-error-response>`;
+``getCode()`` always returns ``55501741293955``.
+
+..  list-table::
+    :header-rows: 1
+    :widths: 40 60
+
+    *   -   Method
+        -   Description
+    *   -   ``getReceivedType(): string``
+        -   The type the answer stated, or an empty string if it did not carry
+            one.
+    *   -   ``getPayload(): array``
+        -   Raw data of the answer, e.g. for the log.
